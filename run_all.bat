@@ -21,6 +21,9 @@ start "Order Service" cmd /k "cd order-service && mvn spring-boot:run"
 echo Starting Delivery Service...
 start "Delivery Service" cmd /k "cd delivery-service && mvn spring-boot:run"
 
+echo Starting Rating Service...
+start "Rating Service" cmd /k "cd rating-service && mvn spring-boot:run"
+
 echo Starting Frontend...
 start "Frontend" cmd /k "cd frontend && npm run dev"
 

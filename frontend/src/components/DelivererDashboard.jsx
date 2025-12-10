@@ -5,7 +5,6 @@ import { Truck, MapPin, CheckCircle, Clock } from 'lucide-react';
 const DelivererDashboard = () => {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
-    // Hardcoded deliverer ID for demo purposes
     const delivererId = "runner_demo_1";
 
     useEffect(() => {
@@ -15,9 +14,11 @@ const DelivererDashboard = () => {
     const fetchOpenOrders = async () => {
         try {
             const response = await axios.get('http://localhost:8080/orders');
-            // Filter only OPEN orders
-            const open = response.data.filter(o => o.status === 'OPEN');
-            setOrders(open);
+            // Show orders relevant to runner: OPEN (to accept) or ASSIGNED to them (to complete)
+            const relevant = response.data.filter(o =>
+                o.status === 'OPEN' || (o.status === 'ASSIGNED')
+            );
+            setOrders(relevant);
             setLoading(false);
         } catch (error) {
             console.error('Error fetching orders:', error);
@@ -34,10 +35,32 @@ const DelivererDashboard = () => {
                 delivererId
             });
             alert('Order accepted!');
-            fetchOpenOrders(); // Refresh list
+            fetchOpenOrders();
         } catch (error) {
             console.error('Error accepting order:', error);
             alert('Failed to accept order');
+        }
+    };
+
+    const markDelivered = async (orderId) => {
+        if (!confirm("Confirm delivery completion?")) return;
+        try {
+            // We need the DELIVERY ID to complete it.
+            // Option A: Backend adds deliveryId to Order model (ideal but requires refactor).
+            // Option B: Query delivery service for delivery by orderId.
+            const delRes = await axios.get(`http://localhost:8080/deliveries/order/${orderId}`);
+            const delivery = delRes.data[0]; // Assuming list
+
+            if (delivery && delivery.id) {
+                await axios.put(`http://localhost:8080/deliveries/${delivery.id}/complete`);
+                alert('Order marked as DELIVERED!');
+                fetchOpenOrders();
+            } else {
+                alert('Could not find delivery record to complete.');
+            }
+        } catch (error) {
+            console.error('Error completing delivery:', error);
+            alert('Failed to complete delivery');
         }
     };
 
@@ -70,8 +93,10 @@ const DelivererDashboard = () => {
                             <div className="p-6 flex-grow ">
                                 <div className="flex justify-between items-start mb-4">
                                     <h3 className="font-bold text-lg text-slate-900">{order.itemId || 'Delivery Request'}</h3>
-                                    <span className="text-xs font-semibold bg-green-100 text-green-700 px-2 py-1 rounded-full flex items-center">
-                                        <Clock size={12} className="mr-1" /> OPEN
+                                    <span className={`text-xs font-semibold px-2 py-1 rounded-full flex items-center ${order.status === 'OPEN' ? 'bg-green-100 text-green-700' :
+                                            order.status === 'ASSIGNED' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-700'
+                                        }`}>
+                                        <Clock size={12} className="mr-1" /> {order.status}
                                     </span>
                                 </div>
 
@@ -86,13 +111,27 @@ const DelivererDashboard = () => {
                                     </div>
                                 </div>
 
-                                <button
-                                    onClick={() => acceptOrder(order.id)}
-                                    className="w-full bg-slate-900 text-white font-semibold py-3 rounded-xl hover:bg-slate-700 transition-colors flex items-center justify-center space-x-2"
-                                >
-                                    <span>Accept Order</span>
-                                    <Truck size={18} />
-                                </button>
+                                {order.status === 'OPEN' ? (
+                                    <button
+                                        onClick={() => acceptOrder(order.id)}
+                                        className="w-full bg-slate-900 text-white font-semibold py-3 rounded-xl hover:bg-slate-700 transition-colors flex items-center justify-center space-x-2"
+                                    >
+                                        <span>Accept Order</span>
+                                        <Truck size={18} />
+                                    </button>
+                                ) : order.status === 'ASSIGNED' ? (
+                                    <button
+                                        onClick={() => markDelivered(order.id)}
+                                        className="w-full bg-green-600 text-white font-semibold py-3 rounded-xl hover:bg-green-600 transition-colors flex items-center justify-center space-x-2 shadow-lg shadow-green-200"
+                                    >
+                                        <span>Mark Delivered</span>
+                                        <CheckCircle size={18} />
+                                    </button>
+                                ) : (
+                                    <div className="w-full bg-slate-100 text-slate-500 font-semibold py-3 rounded-xl flex items-center justify-center">
+                                        <span>Completed</span>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     ))}
@@ -100,7 +139,7 @@ const DelivererDashboard = () => {
                     {orders.length === 0 && (
                         <div className="col-span-full text-center py-20 bg-white rounded-2xl border border-slate-100 border-dashed">
                             <Truck size={48} className="mx-auto text-slate-300 mb-4" />
-                            <p className="text-slate-400">No open orders available right now.</p>
+                            <p className="text-slate-400">No orders available.</p>
                         </div>
                     )}
                 </div>

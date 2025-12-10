@@ -25,7 +25,7 @@ const OpenOrders = () => {
         switch (status) {
             case 'OPEN': return 'bg-green-100 text-green-700 border-green-200';
             case 'ASSIGNED': return 'bg-blue-100 text-blue-700 border-blue-200';
-            case 'COMPLETED': return 'bg-slate-100 text-slate-700 border-slate-200';
+            case 'DELIVERED': return 'bg-slate-100 text-slate-700 border-slate-200';
             default: return 'bg-gray-100 text-gray-700';
         }
     };
@@ -73,6 +73,13 @@ const OpenOrders = () => {
                                 </div>
                             </div>
 
+                            {/* Rating Component if Delivered */}
+                            {order.status === 'DELIVERED' && (
+                                <div className="mt-6 pt-4 border-t border-slate-50">
+                                    <RatingComponent orderId={order.id} runnerId="runner_demo_1" />
+                                </div>
+                            )}
+
                             <div className="mt-6 pt-4 border-t border-slate-50 flex justify-between items-center text-xs text-slate-400">
                                 <span>By {order.userId}</span>
                                 <span>{new Date(order.createdAt).toLocaleDateString()}</span>
@@ -87,6 +94,82 @@ const OpenOrders = () => {
                     )}
                 </div>
             )}
+        </div>
+    );
+};
+
+// Internal Rating Component
+const RatingComponent = ({ orderId, runnerId }) => {
+    const [rating, setRating] = useState(0);
+    const [submitted, setSubmitted] = useState(false);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        // Check if user already rated
+        axios.get(`http://localhost:8080/ratings/order/${orderId}`)
+            .then(res => {
+                if (res.data) {
+                    setSubmitted(true);
+                    setRating(res.data.ratingValue);
+                }
+                setLoading(false);
+            })
+            .catch(err => {
+                setLoading(false); // No rating found, that's fine
+            });
+    }, [orderId]);
+
+    const submitRating = async () => {
+        if (rating === 0) return;
+        try {
+            await axios.post('http://localhost:8080/ratings', {
+                orderId,
+                userId: 'current_user', // mock
+                runnerId,
+                ratingValue: rating,
+                comments: 'Great service!'
+            });
+            setSubmitted(true);
+        } catch (e) {
+            alert('Error submitting rating');
+        }
+    };
+
+    if (loading) return <div className="text-xs text-slate-400">Loading rating...</div>;
+
+    if (submitted) {
+        return (
+            <div className="bg-green-50 p-3 rounded-lg flex items-center justify-center space-x-2">
+                <span className="text-green-600 font-bold">Reflected</span>
+                <span className="text-yellow-500 font-bold">{rating} ★</span>
+            </div>
+        );
+    }
+
+    return (
+        <div className="bg-yellow-50 p-4 rounded-xl">
+            <p className="text-xs font-bold text-yellow-800 mb-2 uppercase tracking-wide">Rate your delivery</p>
+            <div className="flex justify-between items-center">
+                <div className="flex space-x-1">
+                    {[1, 2, 3, 4, 5].map(star => (
+                        <button
+                            key={star}
+                            onClick={() => setRating(star)}
+                            className={`text-xl transition-transform hover:scale-110 ${rating >= star ? 'text-yellow-500' : 'text-gray-300'}`}
+                        >
+                            ★
+                        </button>
+                    ))}
+                </div>
+                {rating > 0 && (
+                    <button
+                        onClick={submitRating}
+                        className="text-xs bg-yellow-500 hover:bg-yellow-600 text-white font-bold px-3 py-1.5 rounded-lg transition-colors"
+                    >
+                        Submit
+                    </button>
+                )}
+            </div>
         </div>
     );
 };

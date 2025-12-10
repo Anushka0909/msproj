@@ -36,11 +36,19 @@ public class OrderController {
         return orderRepository.findByUserId(userId);
     }
     
-    // Endpoint to update status (likely called by Delivery Service)
+    // Endpoint to update status (generic)
     @PutMapping("/{id}/status")
     public Order updateStatus(@PathVariable String id, @RequestParam String status) {
         Order order = orderRepository.findById(id).orElseThrow(() -> new RuntimeException("Order not found"));
         order.setStatus(status);
+        return orderRepository.save(order);
+    }
+
+    // Specific endpoint for DELIVERED as requested
+    @PutMapping("/{id}/status/DELIVERED")
+    public Order markOrderDelivered(@PathVariable String id) {
+        Order order = orderRepository.findById(id).orElseThrow(() -> new RuntimeException("Order not found"));
+        order.setStatus("DELIVERED");
         return orderRepository.save(order);
     }
 }

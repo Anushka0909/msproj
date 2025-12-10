@@ -41,6 +41,21 @@ public class DeliveryController {
         return saved;
     }
 
+    @PutMapping("/{id}/complete")
+    public Delivery completeDelivery(@PathVariable String id) {
+        Delivery delivery = deliveryRepository.findById(id).orElseThrow(() -> new RuntimeException("Delivery not found"));
+        delivery.setStatus("DELIVERED");
+        Delivery saved = deliveryRepository.save(delivery);
+
+        // Update order status
+        try {
+            restTemplate.put("http://order-service/orders/" + delivery.getOrderId() + "/status/DELIVERED", null);
+        } catch (Exception e) {
+            System.err.println("Failed to update status in order-service: " + e.getMessage());
+        }
+        return saved;
+    }
+
     @GetMapping("/{id}")
     public Delivery getDelivery(@PathVariable String id) {
         return deliveryRepository.findById(id).orElseThrow(() -> new RuntimeException("Delivery not found"));
