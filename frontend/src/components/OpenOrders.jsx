@@ -2,17 +2,23 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Package, MapPin, Badge } from 'lucide-react';
 
-const OpenOrders = () => {
+const OpenOrders = ({ myOrders }) => {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
+    const user = JSON.parse(localStorage.getItem('user'));
 
     useEffect(() => {
         fetchOrders();
-    }, []);
+    }, [myOrders]);
 
     const fetchOrders = async () => {
         try {
-            const response = await axios.get('http://localhost:8080/orders');
+            let url = 'http://localhost:8080/orders';
+            if (myOrders && user) {
+                url = `http://localhost:8080/orders/user/${user.userId}`;
+            }
+
+            const response = await axios.get(url);
             setOrders(response.data);
             setLoading(false);
         } catch (error) {
@@ -32,7 +38,7 @@ const OpenOrders = () => {
 
     return (
         <div>
-            <h2 className="text-3xl font-bold text-slate-800 mb-8">All Delivery Requests</h2>
+            <h2 className="text-3xl font-bold text-slate-800 mb-8">{myOrders ? 'My Orders' : 'All Delivery Requests'}</h2>
 
             {loading ? (
                 <div className="flex justify-center py-20">
@@ -73,10 +79,12 @@ const OpenOrders = () => {
                                 </div>
                             </div>
 
-                            {/* Rating Component if Delivered */}
-                            {order.status === 'DELIVERED' && (
+                            {/* Rating Component if Delivered AND it is My Order */}
+                            {myOrders && order.status === 'DELIVERED' && (
                                 <div className="mt-6 pt-4 border-t border-slate-50">
                                     <RatingComponent orderId={order.id} runnerId="runner_demo_1" />
+                                    {/* Note: In real app, we need the actual runnerId from the delivery service or stored in order. 
+                                        For this demo, we mock it or fetch it inside RatingComponent */}
                                 </div>
                             )}
 
@@ -115,17 +123,24 @@ const RatingComponent = ({ orderId, runnerId }) => {
                 setLoading(false);
             })
             .catch(err => {
-                setLoading(false); // No rating found, that's fine
+                setLoading(false);
             });
     }, [orderId]);
 
     const submitRating = async () => {
         if (rating === 0) return;
         try {
+            const user = JSON.parse(localStorage.getItem('user'));
+            // We need the ACTUAL runner ID. For now I must use the mocked one if not available on order.
+            // Ideally order should have runnerId if we updated it, or we fetch delivery.
+            // Simple fix: fetch delivery first to get runnerId.
+            const delRes = await axios.get(`http://localhost:8080/deliveries/order/${orderId}`);
+            const realRunnerId = delRes.data[0]?.delivererId || runnerId;
+
             await axios.post('http://localhost:8080/ratings', {
                 orderId,
-                userId: 'current_user', // mock
-                runnerId,
+                userId: user.userId,
+                runnerId: realRunnerId,
                 ratingValue: rating,
                 comments: 'Great service!'
             });

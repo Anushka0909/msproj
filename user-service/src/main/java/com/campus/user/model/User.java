@@ -16,6 +16,7 @@ public class User {
     private String name;
     private String email;
     private String phone;
-    private String role; // "ORDERER" or "DELIVERER"
+    private String password; // Plain text for simplicity as requested
+    private String role; // "USER" or "RUNNER"
     private String hostelOrBlock;
 }
