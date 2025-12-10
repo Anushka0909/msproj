@@ -14,6 +14,7 @@ A microservices-based application for campus delivery, built with Spring Boot, S
 - **inventory-service** (Port 9002): Items & Stores
 - **order-service** (Port 9003): Order Management
 - **delivery-service** (Port 9004): Delivery Tracking
+- **rating-service** (Port 9005): Rating & Reviews
 - **frontend** (React, Port 5173): User Interface
 
 ## How to Run
@@ -26,6 +27,13 @@ mongod
 ```
 
 ### 2. Start Backend Services
+**Easy Method (Windows):**
+Simply run the `run_all.bat` script in the root directory. It will open all terminals for you.
+```batch
+.\run_all.bat
+```
+
+**Manual Method:**
 Open separate terminals for each service and run the following command in each directory, **IN THIS ORDER**:
 
 1. **Eureka Server**:
@@ -72,9 +80,15 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 ## Testing with Postman
 Base URL: `http://localhost:8080` (API Gateway)
 
-1. **Create User**
-   - POST `/users`
-   - Body: `{ "name": "Anushka", "email": "anu@example.com", "phone": "9999999999", "role": "ORDERER", "hostelOrBlock": "Block A" }`
+Base URL: `http://localhost:8080` (API Gateway)
+
+1. **Register User**
+   - POST `/auth/register`
+   - Body: `{ "name": "Anushka", "email": "anu@example.com", "password": "password", "phone": "9999999999", "role": "USER", "hostelOrBlock": "Block A" }`
+
+2. **Login User** (To get ID)
+   - POST `/auth/login`
+   - Body: `{ "email": "anu@example.com", "password": "password" }`
 
 2. **Create Item**
    - POST `/items`
