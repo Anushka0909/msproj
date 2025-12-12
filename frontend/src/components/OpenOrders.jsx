@@ -36,6 +36,20 @@ const OpenOrders = ({ myOrders }) => {
         }
     };
 
+    const handleCancelOrder = async (orderId) => {
+        if (!confirm('Are you sure you want to cancel this order?')) return;
+        try {
+            await axios.delete(`http://localhost:8080/orders/${orderId}`, {
+                params: { userId: user.userId }
+            });
+            setOrders(orders.filter(o => o.id !== orderId));
+            alert('Order cancelled successfully.');
+        } catch (error) {
+            console.error('Error cancelling order:', error);
+            alert('Failed to cancel order. It may be already delivered.');
+        }
+    };
+
     return (
         <div>
             <h2 className="text-3xl font-bold text-slate-800 mb-8">{myOrders ? 'My Orders' : 'All Delivery Requests'}</h2>
@@ -89,8 +103,21 @@ const OpenOrders = ({ myOrders }) => {
                             )}
 
                             <div className="mt-6 pt-4 border-t border-slate-50 flex justify-between items-center text-xs text-slate-400">
-                                <span>By {order.userId}</span>
-                                <span>{new Date(order.createdAt).toLocaleDateString()}</span>
+                                <div className="flex flex-col">
+                                    <span>By {order.userId}</span>
+                                    <span>{new Date(order.createdAt).toLocaleDateString()}</span>
+                                </div>
+                                {myOrders && (order.status === 'OPEN' || order.status === 'ASSIGNED') && (
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation(); // Prevent triggering other clicks if any
+                                            handleCancelOrder(order.id);
+                                        }}
+                                        className="bg-red-50 text-red-600 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-red-100 transition-colors"
+                                    >
+                                        Cancel Order
+                                    </button>
+                                )}
                             </div>
                         </div>
                     ))}

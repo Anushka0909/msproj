@@ -51,4 +51,21 @@ public class OrderController {
         order.setStatus("DELIVERED");
         return orderRepository.save(order);
     }
+
+    @DeleteMapping("/{id}")
+    public void deleteOrder(@PathVariable String id, @RequestParam String userId) {
+        Order order = orderRepository.findById(id).orElseThrow(() -> new RuntimeException("Order not found"));
+        
+        // Validate Owner
+        if (!order.getUserId().equals(userId)) {
+            throw new RuntimeException("Unauthorized: You can only delete your own orders.");
+        }
+
+        // Validate Status
+        if ("DELIVERED".equals(order.getStatus())) {
+            throw new RuntimeException("Cannot cancel a specific delivered order.");
+        }
+
+        orderRepository.delete(order);
+    }
 }
