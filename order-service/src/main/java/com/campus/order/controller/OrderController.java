@@ -66,6 +66,8 @@ public class OrderController {
             throw new RuntimeException("Cannot cancel a specific delivered order.");
         }
 
-        orderRepository.delete(order);
+        // Logical Delete
+        order.setStatus("CANCELLED");
+        orderRepository.save(order);
     }
 }

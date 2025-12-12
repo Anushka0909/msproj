@@ -5,7 +5,11 @@ import { Truck, MapPin, CheckCircle, Clock } from 'lucide-react';
 const DelivererDashboard = () => {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
-    const delivererId = "runner_demo_1";
+    const [stats, setStats] = useState({ total: 0, earnings: 0, rating: 0 });
+
+    // Get the logged-in runner's ID from localStorage
+    const user = JSON.parse(localStorage.getItem('user'));
+    const delivererId = user?.userId || "runner_demo_1"; // Fallback for safety
 
     useEffect(() => {
         fetchOpenOrders();
@@ -13,11 +17,54 @@ const DelivererDashboard = () => {
 
     const fetchOpenOrders = async () => {
         try {
-            const response = await axios.get('http://localhost:8080/orders');
-            // Show orders relevant to runner: OPEN (to accept) or ASSIGNED to them (to complete)
-            const relevant = response.data.filter(o =>
-                o.status === 'OPEN' || (o.status === 'ASSIGNED')
-            );
+            // Fetch runner-specific deliveries for stats calculation
+            const deliveriesRes = await axios.get(`http://localhost:8080/deliveries/deliverer/${delivererId}`);
+            const myDeliveries = deliveriesRes.data;
+
+            // Filter completed deliveries
+            const completedDeliveries = myDeliveries.filter(d => d.status === 'DELIVERED');
+
+            // Fetch orders for each completed delivery to calculate earnings
+            let totalEarnings = 0;
+            for (const delivery of completedDeliveries) {
+                try {
+                    const orderRes = await axios.get(`http://localhost:8080/orders/${delivery.orderId}`);
+                    totalEarnings += orderRes.data.priceOffered || 0;
+                } catch (err) {
+                    console.error('Error fetching order:', err);
+                }
+            }
+
+            // Fetch runner-specific rating
+            let avgRating = 0;
+            try {
+                const ratingRes = await axios.get(`http://localhost:8080/ratings/runner/${delivererId}`);
+                avgRating = ratingRes.data.averageRating || 0;
+            } catch (err) {
+                console.error('Error fetching ratings:', err);
+            }
+
+            setStats({
+                total: completedDeliveries.length,
+                earnings: totalEarnings,
+                rating: avgRating.toFixed(1)
+            });
+
+            // Fetch ALL orders to show OPEN ones (available to accept)
+            const allOrdersRes = await axios.get('http://localhost:8080/orders');
+            const allOrders = allOrdersRes.data;
+
+            // Get order IDs that this runner has already accepted
+            const myOrderIds = myDeliveries.map(d => d.orderId);
+
+            // Show: OPEN orders (not yet accepted by anyone) OR orders ASSIGNED to this runner
+            const relevant = allOrders.filter(o => {
+                if (o.status === 'CANCELLED') return false;
+                if (o.status === 'OPEN') return true; // Available to accept
+                if (o.status === 'ASSIGNED' && myOrderIds.includes(o.id)) return true; // Assigned to me
+                return false;
+            });
+
             setOrders(relevant);
             setLoading(false);
         } catch (error) {
@@ -77,6 +124,37 @@ const DelivererDashboard = () => {
                 </div>
             </div>
 
+            {/* Stats Summary Card */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center space-x-4">
+                    <div className="bg-blue-50 p-3 rounded-full text-blue-600">
+                        <CheckCircle size={24} />
+                    </div>
+                    <div>
+                        <p className="text-slate-500 text-sm font-medium">Deliveries</p>
+                        <p className="text-2xl font-bold text-slate-800">{stats.total}</p>
+                    </div>
+                </div>
+                <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center space-x-4">
+                    <div className="bg-green-50 p-3 rounded-full text-green-600">
+                        <span className="text-xl font-bold">₹</span>
+                    </div>
+                    <div>
+                        <p className="text-slate-500 text-sm font-medium">Earnings</p>
+                        <p className="text-2xl font-bold text-slate-800">₹{stats.earnings}</p>
+                    </div>
+                </div>
+                <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center space-x-4">
+                    <div className="bg-yellow-50 p-3 rounded-full text-yellow-600">
+                        <span className="text-xl font-bold">★</span>
+                    </div>
+                    <div>
+                        <p className="text-slate-500 text-sm font-medium">Rating</p>
+                        <p className="text-2xl font-bold text-slate-800">{stats.rating}</p>
+                    </div>
+                </div>
+            </div>
+
             {loading ? (
                 <div className="flex justify-center py-20">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
@@ -94,7 +172,7 @@ const DelivererDashboard = () => {
                                 <div className="flex justify-between items-start mb-4">
                                     <h3 className="font-bold text-lg text-slate-900">{order.itemId || 'Delivery Request'}</h3>
                                     <span className={`text-xs font-semibold px-2 py-1 rounded-full flex items-center ${order.status === 'OPEN' ? 'bg-green-100 text-green-700' :
-                                            order.status === 'ASSIGNED' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-700'
+                                        order.status === 'ASSIGNED' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-700'
                                         }`}>
                                         <Clock size={12} className="mr-1" /> {order.status}
                                     </span>

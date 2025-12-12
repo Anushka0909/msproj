@@ -32,6 +32,7 @@ const OpenOrders = ({ myOrders }) => {
             case 'OPEN': return 'bg-green-100 text-green-700 border-green-200';
             case 'ASSIGNED': return 'bg-blue-100 text-blue-700 border-blue-200';
             case 'DELIVERED': return 'bg-slate-100 text-slate-700 border-slate-200';
+            case 'CANCELLED': return 'bg-red-100 text-red-700 border-red-200';
             default: return 'bg-gray-100 text-gray-700';
         }
     };
@@ -42,11 +43,12 @@ const OpenOrders = ({ myOrders }) => {
             await axios.delete(`http://localhost:8080/orders/${orderId}`, {
                 params: { userId: user.userId }
             });
-            setOrders(orders.filter(o => o.id !== orderId));
+            // Logical update: Mark as CANCELLED instead of removing
+            setOrders(orders.map(o => o.id === orderId ? { ...o, status: 'CANCELLED' } : o));
             alert('Order cancelled successfully.');
         } catch (error) {
             console.error('Error cancelling order:', error);
-            alert('Failed to cancel order. It may be already delivered.');
+            alert('Failed to cancel order.');
         }
     };
 
@@ -90,6 +92,25 @@ const OpenOrders = ({ myOrders }) => {
                                         <p className="text-xs text-slate-500 uppercase font-semibold">Drop</p>
                                         <p className="text-sm text-slate-700 font-medium">{order.dropLocation}</p>
                                     </div>
+                                </div>
+
+                                {/* Lifecycle Stepper */}
+                                <div className="pt-4 mt-2">
+                                    <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
+                                        <span className={order.status !== 'CANCELLED' ? 'text-primary font-bold' : ''}>Open</span>
+                                        <span className={order.status === 'ASSIGNED' || order.status === 'DELIVERED' ? 'text-primary font-bold' : ''}>Assigned</span>
+                                        <span className={order.status === 'DELIVERED' ? 'text-primary font-bold' : ''}>Delivered</span>
+                                    </div>
+                                    <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden flex">
+                                        {order.status === 'CANCELLED' ? (
+                                            <div className="h-full bg-red-500 w-full" />
+                                        ) : (
+                                            <>
+                                                <div className={`h-full bg-green-500 transition-all duration-500 ${order.status === 'OPEN' ? 'w-1/3' : order.status === 'ASSIGNED' ? 'w-2/3' : 'w-full'}`} />
+                                            </>
+                                        )}
+                                    </div>
+                                    {order.status === 'CANCELLED' && <p className="text-xs text-red-500 font-bold mt-1 text-center">ORDER CANCELLED</p>}
                                 </div>
                             </div>
 
