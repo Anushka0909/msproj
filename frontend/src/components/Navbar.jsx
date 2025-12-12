@@ -12,25 +12,26 @@ const Navbar = () => {
         navigate('/login');
     };
 
-    const isActive = (path) => location.pathname === path ? "bg-indigo-50 text-indigo-600" : "text-slate-600 hover:text-indigo-600";
+    const isActive = (path) => location.pathname === path ? "bg-pink-100 text-accent" : "text-slate-600 hover:text-primary";
 
     return (
-        <nav className="bg-white border-b border-slate-100 shadow-sm sticky top-0 z-50 backdrop-blur-lg bg-opacity-90">
+        <nav className="bg-white border-b border-pink-border shadow-sm sticky top-0 z-50 backdrop-blur-lg bg-opacity-90">
             <div className="container mx-auto px-6 py-4 flex justify-between items-center">
                 <Link to="/" className="flex items-center space-x-2 group">
-                    <div className="bg-indigo-600 text-white p-2 rounded-xl group-hover:rotate-12 transition-transform shadow-lg shadow-indigo-200">
+                    <div className="bg-primary text-white p-2 rounded-xl group-hover:rotate-12 transition-transform shadow-lg shadow-pink-200">
                         <Package size={24} />
                     </div>
-                    <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-indigo-600">
+                    <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-dark to-primary">
                         CampusRun
                     </span>
+                    <span className="text-primary text-xs" title="Cute delivery service">🎀</span>
                 </Link>
 
                 <div className="hidden md:flex items-center space-x-6">
                     {!user ? (
                         <>
                             <Link to="/login" className="text-slate-600 font-medium hover:text-primary transition-colors">Login</Link>
-                            <Link to="/register" className="bg-slate-900 text-white px-5 py-2.5 rounded-xl font-medium hover:bg-slate-800 transition-all shadow-lg shadow-slate-200">
+                            <Link to="/register" className="bg-accent text-white px-5 py-2.5 rounded-xl font-medium hover:bg-primary transition-all shadow-lg shadow-pink-200">
                                 Get Started
                             </Link>
                         </>
@@ -59,7 +60,7 @@ const Navbar = () => {
                             <div className="h-6 w-px bg-slate-200 mx-2"></div>
 
                             <div className="flex items-center space-x-2">
-                                <div className="w-8 h-8 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center font-bold text-xs">
+                                <div className="w-8 h-8 bg-pink-100 text-accent rounded-full flex items-center justify-center font-bold text-xs">
                                     {(user.name || 'U').charAt(0)}
                                 </div>
                                 <span className="text-sm font-semibold text-slate-700">{user.name}</span>

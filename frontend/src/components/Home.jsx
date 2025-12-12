@@ -7,10 +7,10 @@ import { FaHandshake, FaRocket } from "react-icons/fa";
 const Home = () => {
     return (
         <div className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="inline-flex items-center space-x-2 bg-indigo-50 text-indigo-600 px-4 py-2 rounded-full mb-8">
+            <div className="inline-flex items-center space-x-2 bg-pink-100 text-accent px-4 py-2 rounded-full mb-8">
                 <span className="relative flex h-3 w-3">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-indigo-500"></span>
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-accent"></span>
                 </span>
                 <span className="text-sm font-medium">Live on Campus</span>
             </div>
@@ -31,7 +31,7 @@ const Home = () => {
             <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4">
                 <Link
                     to="/create-order"
-                    className="group flex items-center space-x-2 bg-primary text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200"
+                    className="group flex items-center space-x-2 bg-accent text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-primary transition-all shadow-lg shadow-pink-200"
                 >
                     <ShoppingBag size={20} />
                     <span>Post a Request</span>
@@ -39,7 +39,7 @@ const Home = () => {
                 </Link>
                 <Link
                     to="/orders"
-                    className="flex items-center space-x-2 bg-white text-slate-700 border border-slate-200 px-8 py-4 rounded-full text-lg font-semibold hover:border-primary hover:text-primary transition-all"
+                    className="flex items-center space-x-2 bg-white text-slate-700 border border-pink-border px-8 py-4 rounded-full text-lg font-semibold hover:border-primary hover:text-primary transition-all"
                 >
                     <Zap size={20} />
                     <span>View Open Orders</span>
@@ -47,25 +47,25 @@ const Home = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-24 w-full max-w-5xl px-4">
-                <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                <div className="bg-white p-6 rounded-2xl border border-pink-border shadow-sm hover:shadow-md transition-shadow">
                     <div className="text-4xl mb-4 flex justify-center">
-                        <FiEdit className="text-4xl text-purple-600" />
+                        <FiEdit className="text-4xl text-primary" />
                     </div>
                     <h3 className="text-xl font-bold text-slate-900 mb-2">Post Request</h3>
                     <p className="text-slate-500">Specify what you need and where.</p>
                 </div>
 
-                <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                <div className="bg-white p-6 rounded-2xl border border-pink-border shadow-sm hover:shadow-md transition-shadow">
                     <div className="text-4xl mb-4 flex justify-center">
-                        <FaHandshake className="text-4xl text-blue-500" />
+                        <FaHandshake className="text-4xl text-secondary" />
                     </div>
                     <h3 className="text-xl font-bold text-slate-900 mb-2">Get Matched</h3>
                     <p className="text-slate-500">A detailed runner accepts your order.</p>
                 </div>
 
-                <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                <div className="bg-white p-6 rounded-2xl border border-pink-border shadow-sm hover:shadow-md transition-shadow">
                     <div className="text-4xl mb-4 flex justify-center">
-                        <FaRocket className="text-4xl text-red-500" />
+                        <FaRocket className="text-4xl text-accent" />
                     </div>
                     <h3 className="text-xl font-bold text-slate-900 mb-2">Fast Delivery</h3>
                     <p className="text-slate-500">Received your items in minutes.</p>

@@ -144,8 +144,11 @@ const OpenOrders = ({ myOrders }) => {
                     ))}
 
                     {orders.length === 0 && (
-                        <div className="col-span-full text-center py-20 bg-white rounded-2xl border border-slate-100 border-dashed">
-                            <p className="text-slate-400">No orders found.</p>
+                        <div className="col-span-full text-center py-20 bg-white rounded-2xl border border-pink-border border-dashed">
+                            <p className="text-slate-400 flex items-center justify-center gap-2">
+                                <span>No orders found</span>
+                                <span className="text-primary">🎀</span>
+                            </p>
                         </div>
                     )}
                 </div>

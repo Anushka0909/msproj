@@ -115,7 +115,10 @@ const DelivererDashboard = () => {
         <div>
             <div className="flex items-center justify-between mb-8">
                 <div>
-                    <h2 className="text-3xl font-bold text-slate-800">Runner Dashboard</h2>
+                    <h2 className="text-3xl font-bold text-slate-800 flex items-center gap-2">
+                        Runner Dashboard
+                        <span className="text-primary text-lg">🎀</span>
+                    </h2>
                     <p className="text-slate-500">Find tasks near you and start earning.</p>
                 </div>
                 <div className="bg-dark text-white px-4 py-2 rounded-lg flex items-center space-x-2">
@@ -215,9 +218,12 @@ const DelivererDashboard = () => {
                     ))}
 
                     {orders.length === 0 && (
-                        <div className="col-span-full text-center py-20 bg-white rounded-2xl border border-slate-100 border-dashed">
-                            <Truck size={48} className="mx-auto text-slate-300 mb-4" />
-                            <p className="text-slate-400">No orders available.</p>
+                        <div className="col-span-full text-center py-20 bg-white rounded-2xl border border-pink-border border-dashed">
+                            <Truck size={48} className="mx-auto text-primary mb-4" />
+                            <p className="text-slate-400 flex items-center justify-center gap-2">
+                                <span>No orders available</span>
+                                <span className="text-primary">🎀</span>
+                            </p>
                         </div>
                     )}
                 </div>

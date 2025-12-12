@@ -3,21 +3,24 @@
 @tailwind utilities;
 
 body {
-  @apply bg-slate-50 text-slate-900;
+  @apply bg-pink-light text-dark;
   font-family: 'Inter', sans-serif;
 }
 
-/* Custom Scrollbar for chic look */
+/* Custom Scrollbar for pastel pink theme */
 ::-webkit-scrollbar {
   width: 8px;
 }
+
 ::-webkit-scrollbar-track {
-  background: #f1f1f1; 
+  background: #FFF5F7;
 }
+
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1; 
+  background: #FFB6C1;
   border-radius: 4px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8; 
+  background: #FF69B4;
 }
