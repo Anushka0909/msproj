@@ -1,5 +1,6 @@
 package com.campus.user.controller;
 
+import com.campus.user.dto.UserResponse;
 import com.campus.user.model.User;
 import com.campus.user.repository.UserRepository;
 import lombok.Data;
@@ -16,11 +17,12 @@ public class AuthController {
     private final UserRepository userRepository;
 
     @PostMapping("/register")
-    public User register(@RequestBody User user) {
+    public UserResponse register(@RequestBody User user) {
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
             throw new RuntimeException("Email already exists");
         }
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+        return UserResponse.fromUser(savedUser);
     }
 
     @PostMapping("/login")
